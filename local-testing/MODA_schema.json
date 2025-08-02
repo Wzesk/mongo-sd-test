@@ -1,0 +1,81 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MODA-design",
+  "description": "A schema for MODA designs.",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "The name of the model if provided by the user. If not provided, it will be auto-generated."
+    },
+    "moda-version": {
+      "type": "string",
+      "description": "version of moda. The moda version includes fabrication and hardware related constraints."
+    },
+    "design-id": {
+      "type": "string",
+      "description": "unique id for the design."
+    },
+    "author-id": {
+      "type": "string",
+      "description": "unique id for the user that created the design. If user did not login, this is blank"
+    },
+    "referrer-uri": {
+      "type": "string",
+      "description": "unique uri/url, capturing where the user came to the visualizer from"
+    },
+    "design-width-inches": {
+      "type": "number",
+      "description": "the design width, specified by the user in inches."
+    },
+    "design-height-inches": {
+      "type": "number",
+      "description": "the design height, specified by the user in inches."
+    },
+    "panels": {
+      "type": "array",
+      "description": "The panel elements of the model.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "guid for the panel,to track throughout lifecycle."
+          },
+          "panel-type": {
+            "type": "number",
+            "description": "The panel type.  This number is the length of the panel in inches.",
+            "enum": [36, 54, 72, 90, 108]
+          },
+          "panel-transform": {
+            "type": "array",
+            "description": "a tranformation that described the panel's location."
+          },
+          "panel-material": {
+            "type": "object",
+            "description": "The material of the panel.",
+            "material-name": {
+              "type": "string",
+              "description": "The name of the material."
+            },
+            "material-id":
+          {
+        
+              "type": "string",
+              "description": "The unique identifier for the material."
+            }
+          }
+        },
+        "required": [
+          "id",
+          "type"
+        ]
+      }
+    }
+  },
+  "required": [
+    "design-id",
+    "moda-version",
+    "panels"
+  ]
+}

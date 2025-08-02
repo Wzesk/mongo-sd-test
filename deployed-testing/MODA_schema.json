@@ -1,0 +1,78 @@
+{
+  "id": "deployed_test_sample_2024",
+  "name": "Deployed Server Test Design",
+  "designId": "deployed_sample_design_2024",
+  "geometry": {
+    "type": "parametric",
+    "parameters": {
+      "width": 120,
+      "height": 80,
+      "depth": 40,
+      "material": "titanium",
+      "finish": "brushed",
+      "holes": [
+        { "x": 10, "y": 10, "diameter": 5 },
+        { "x": 110, "y": 70, "diameter": 8 }
+      ]
+    },
+    "constraints": {
+      "minWidth": 50,
+      "maxWidth": 500,
+      "minHeight": 30,
+      "maxHeight": 200
+    }
+  },
+  "shapediver": {
+    "modelId": "deployed-test-model-v2",
+    "viewportId": "viewport-main",
+    "sessionId": "session-abc123def",
+    "parameters": {
+      "length": 120,
+      "width": 80,
+      "thickness": 40,
+      "materialType": "titanium",
+      "surfaceFinish": "brushed",
+      "showHoles": true,
+      "holeCount": 2,
+      "renderQuality": "high"
+    },
+    "outputs": {
+      "geometry": "mesh",
+      "preview": "image",
+      "data": "json"
+    }
+  },
+  "metadata": {
+    "created": "2024-12-19T10:30:00.000Z",
+    "version": "2.1",
+    "author": "Deployed Test Suite",
+    "description": "Sample design for testing deployed MongoDB API endpoints",
+    "tags": ["test", "deployed", "sample", "titanium", "parametric"],
+    "license": "MIT",
+    "category": "mechanical",
+    "complexity": "medium",
+    "estimatedRenderTime": "15s",
+    "fileSize": "2.3MB"
+  },
+  "properties": {
+    "weight": 1.25,
+    "volume": 384000,
+    "surfaceArea": 46400,
+    "centerOfMass": {
+      "x": 60,
+      "y": 40,
+      "z": 20
+    },
+    "boundingBox": {
+      "min": { "x": 0, "y": 0, "z": 0 },
+      "max": { "x": 120, "y": 80, "z": 40 }
+    }
+  },
+  "testing": {
+    "testSuite": "deployed-server",
+    "environment": "production",
+    "serverUrl": "https://mongo-sd-server.onrender.com",
+    "timestamp": "2024-12-19T10:30:00.000Z",
+    "purpose": "Validate deployed API functionality"
+  }
+}
