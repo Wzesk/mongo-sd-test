@@ -19,7 +19,8 @@ const testDesigns = [
 //print test designs to console
 console.log('📄 Test Designs Loaded:');
 testDesigns.forEach((design, index) => {
-  console.log(`   ${index + 1}. ${design.name}: "${design.data.name}" (ID: ${design.data['design-id']})`);
+  const designId = design.data['design-id'] || `auto-generated-${index + 1}`;
+  console.log(`   ${index + 1}. ${design.name}: "${design.data.name}" (ID: ${designId})`);
 });
 
 async function testUpload() {
@@ -38,7 +39,8 @@ async function testUpload() {
     for (let i = 0; i < testDesigns.length; i++) {
       const design = testDesigns[i];
       console.log(`\n📤 Uploading ${design.name}: "${design.data.name}"`);
-      console.log(`   Design ID: ${design.data['design-id']}`);
+      const designId = design.data['design-id'] || `auto-generated-${Date.now()}-${i}`;
+      console.log(`   Design ID: ${designId}`);
       console.log(`   Dimensions: ${design.data['design-width-inches']}" × ${design.data['design-height-inches']}"`);
       console.log(`   Pattern: ${design.data['selected_pattern']}`);
       console.log(`   Panels: ${design.data.panels.length}`);
@@ -85,11 +87,12 @@ async function testUpload() {
       
       // Check for each uploaded design
       testDesigns.forEach((design, index) => {
-        const foundInList = listData.find(item => item['design-id'] === design.data['design-id']);
+        const designId = design.data['design-id'] || design.data.name;
+        const foundInList = listData.find(item => item.name === design.data.name);
         if (foundInList) {
           console.log(`   ✅ ${design.name} found in database`);
           console.log(`      Name: "${foundInList.name}"`);
-          console.log(`      Design ID: ${foundInList['design-id']}`);
+          console.log(`      MongoDB ID: ${foundInList._id}`);
           console.log(`      Upload time: ${foundInList.uploadedAt}`);
         } else {
           console.log(`   ❌ ${design.name} NOT found in database`);
@@ -98,7 +101,8 @@ async function testUpload() {
       
       console.log('\n📋 Recent designs in database:');
       listData.slice(-10).forEach((item, index) => {
-        console.log(`     ${index + 1}. "${item.name}" (${item['design-id']})`);
+        const displayId = item['design-id'] || item._id || 'no-id';
+        console.log(`     ${index + 1}. "${item.name}" (${displayId})`);
       });
     } else {
       console.log('❌ Could not fetch list to verify uploads');
@@ -113,7 +117,7 @@ async function testUpload() {
       console.log(`✅ Latest designs list contains ${latestData.length} unique designs`);
       
       testDesigns.forEach((design, index) => {
-        const foundInLatest = latestData.find(item => item['design-id'] === design.data['design-id']);
+        const foundInLatest = latestData.find(item => item.name === design.data.name);
         if (foundInLatest) {
           console.log(`   ✅ ${design.name} appears in latest list`);
           console.log(`      Total versions: ${foundInLatest.totalVersions}`);
@@ -163,7 +167,9 @@ async function testUpload() {
         versionsData.versions.forEach((version, index) => {
           console.log(`     Version ${index}: ${version._id} (${version.uploadedAt})`);
           console.log(`       Pattern: ${version['selected_pattern']}`);
-          console.log(`       Materials: ${version.panels.slice(0, 3).map(p => p.material).join(', ')}...`);
+          if (version.panels && version.panels.length > 0) {
+            console.log(`       Materials: ${version.panels.slice(0, 3).map(p => p.material).join(', ')}...`);
+          }
         });
       } else {
         console.log('⚠️ Could not retrieve version history');
