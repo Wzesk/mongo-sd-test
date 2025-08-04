@@ -2,37 +2,12 @@
 // Tests the deployed server at: https://mongo-sd-server.onrender.com
 
 const BASE_URL = 'https://mongo-sd-server.onrender.com';
-
-// Sample test design data
-const testDesign = {
-  "id": "test_deployed_" + Date.now(),
-  "name": "Deployed Test Design",
-  "designId": "deployed_test_design_" + Date.now(),
-  "geometry": {
-    "type": "parametric",
-    "parameters": {
-      "width": 100,
-      "height": 50,
-      "depth": 25,
-      "material": "steel"
-    }
-  },
-  "shapediver": {
-    "modelId": "test-model-deployed",
-    "viewportId": "viewport-1",
-    "parameters": {
-      "param1": 10,
-      "param2": "blue",
-      "param3": true
-    }
-  },
-  "metadata": {
-    "created": new Date().toISOString(),
-    "version": "1.0",
-    "author": "Deployed Test Script",
-    "tags": ["test", "deployed", "automation"]
-  }
-};
+//read json from file
+const fs = require('fs');
+const path = require('path');
+const testDesign = JSON.parse(fs.readFileSync(path.join(__dirname, '../sample_1.json'), 'utf8'));
+//print test design to console
+console.log('📄 Test Design Loaded:', testDesign);
 
 async function testUpload() {
   console.log('🧪 Testing Upload Endpoint on Deployed Server');
@@ -44,10 +19,7 @@ async function testUpload() {
 
     // Test 1: Upload the test design
     console.log('\n1️⃣ Testing POST /api/data/upload endpoint...');
-    console.log('📤 Uploading test design:');
-    console.log(`   ID: ${testDesign.id}`);
-    console.log(`   Name: ${testDesign.name}`);
-    console.log(`   Design ID: ${testDesign.designId}`);
+    console.log('\n📤 Uploading test design: ${testDesign.name}');
 
     const uploadResponse = await fetch(`${BASE_URL}/api/data/upload`, {
       method: 'POST',

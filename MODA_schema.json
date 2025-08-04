@@ -12,11 +12,7 @@
       "type": "string",
       "description": "version of moda. The moda version includes fabrication and hardware related constraints."
     },
-    "design-id": {
-      "type": "string",
-      "description": "unique id for the design."
-    },
-    "author-id": {
+    "author": {
       "type": "string",
       "description": "unique id for the user that created the design. If user did not login, this is blank"
     },
@@ -32,43 +28,54 @@
       "type": "number",
       "description": "the design height, specified by the user in inches."
     },
+    "selected_pattern": {
+      "type": "number",
+      "description": "the selected pattern, as an integer to select from a list."
+    },
+    "selected_material": {
+      "type": "number",
+      "description": "the selected material, as an integer to select from a list."
+    },
     "panels": {
       "type": "array",
       "description": "The panel elements of the model.",
       "items": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string",
-            "description": "guid for the panel,to track throughout lifecycle."
-          },
-          "panel-type": {
+          "length": {
             "type": "number",
-            "description": "The panel type.  This number is the length of the panel in inches.",
-            "enum": [36, 54, 72, 90, 108]
+            "description": "The length identifier for the panel."
           },
-          "panel-transform": {
-            "type": "array",
-            "description": "a tranformation that described the panel's location."
-          },
-          "panel-material": {
+          "transform": {
             "type": "object",
-            "description": "The material of the panel.",
-            "material-name": {
-              "type": "string",
-              "description": "The name of the material."
+            "description": "The transformation matrix for the panel.",
+            "properties": {
+              "type": {
+                "type": "string",
+                "description": "The type of transformation (e.g., 'xform')."
+              },
+              "data": {
+                "type": "array",
+                "description": "4x4 transformation matrix data.",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  }
+                }
+              }
             },
-            "material-id":
-          {
-        
-              "type": "string",
-              "description": "The unique identifier for the material."
-            }
+            "required": ["type", "data"]
+          },
+          "material": {
+            "type": "number",
+            "description": "The material identifier for the panel."
           }
         },
         "required": [
-          "id",
-          "type"
+          "length",
+          "transform",
+          "material"
         ]
       }
     }
