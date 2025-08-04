@@ -1,0 +1,144 @@
+{
+  "name": "Another Compact Square Layout",
+  "moda-version": "1.0",
+  "author": "user-7",
+  "referrer-uri": "https://example.com/designer",
+  "design-width-inches": 50,
+  "design-height-inches": 50,
+  "selected_pattern": 2,
+  "selected_material": 1,
+  "panels": [
+    {
+      "length": 2,
+      "transform": {
+        "type": "xform",
+        "data": [
+          [
+            0.707,
+            -0.707,
+            0.0,
+            0.0
+          ],
+          [
+            0.707,
+            0.707,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            13.5,
+            13.5,
+            0.0,
+            1.0
+          ]
+        ]
+      },
+      "material": 4
+    },
+    {
+      "length": 2,
+      "transform": {
+        "type": "xform",
+        "data": [
+          [
+            0.707,
+            -0.707,
+            0.0,
+            0.0
+          ],
+          [
+            0.707,
+            0.707,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            40.5,
+            13.5,
+            0.0,
+            1.0
+          ]
+        ]
+      },
+      "material": 5
+    },
+    {
+      "length": 2,
+      "transform": {
+        "type": "xform",
+        "data": [
+          [
+            0.707,
+            -0.707,
+            0.0,
+            0.0
+          ],
+          [
+            0.707,
+            0.707,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            13.5,
+            40.5,
+            0.0,
+            1.0
+          ]
+        ]
+      },
+      "material": 5
+    },
+    {
+      "length": 2,
+      "transform": {
+        "type": "xform",
+        "data": [
+          [
+            0.707,
+            -0.707,
+            0.0,
+            0.0
+          ],
+          [
+            0.707,
+            0.707,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            40.5,
+            40.5,
+            0.0,
+            1.0
+          ]
+        ]
+      },
+      "material": 4
+    }
+  ]
+}
