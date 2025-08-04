@@ -44,15 +44,16 @@ async function testUpload() {
     // Test 2: Verify the uploaded data by fetching it back
     console.log('\n2️⃣ Verifying uploaded data...');
     
-    // First try to get it by the specific ID
-    const getByIdResponse = await fetch(`${BASE_URL}/api/data/${testDesign.id}`);
+    // Try to get it by the MongoDB ID we just received
+    const getByIdResponse = await fetch(`${BASE_URL}/api/data/${insertedId}`);
     
     if (getByIdResponse.ok) {
       const fetchedData = await getByIdResponse.json();
-      console.log('✅ Successfully fetched uploaded design by ID:');
-      console.log(`   ID matches: ${fetchedData.id === testDesign.id}`);
+      console.log('✅ Successfully fetched uploaded design by MongoDB ID:');
+      console.log(`   MongoDB ID matches: ${fetchedData._id === insertedId}`);
       console.log(`   Name matches: ${fetchedData.name === testDesign.name}`);
-      console.log(`   Design ID matches: ${fetchedData.designId === testDesign.designId}`);
+      console.log(`   Author matches: ${fetchedData.author === testDesign.author}`);
+      console.log(`   Pattern: ${fetchedData['selected_pattern']}`);
       console.log(`   Has uploadedAt timestamp: ${!!fetchedData.uploadedAt}`);
       
       if (fetchedData.uploadedAt) {
@@ -62,7 +63,7 @@ async function testUpload() {
         console.log(`   Upload timestamp: ${fetchedData.uploadedAt} (${Math.round(timeDiff/1000)}s ago)`);
       }
     } else {
-      console.log('⚠️ Could not fetch by specific ID, checking in list...');
+      console.log('⚠️ Could not fetch by MongoDB ID, checking in list...');
     }
 
     // Test 3: Check if it appears in the general list
@@ -71,7 +72,7 @@ async function testUpload() {
     
     if (listResponse.ok) {
       const listData = await listResponse.json();
-      const foundInList = listData.find(item => item.id === testDesign.id);
+      const foundInList = listData.find(item => item._id === insertedId);
       
       if (foundInList) {
         console.log('✅ Design found in list:');
@@ -82,7 +83,7 @@ async function testUpload() {
         console.log(`   Total items in list: ${listData.length}`);
         console.log('   Recent items:');
         listData.slice(0, 5).forEach((item, index) => {
-          console.log(`     ${index + 1}. ${item.id} - ${item.name}`);
+          console.log(`     ${index + 1}. ${item._id} - ${item.name}`);
         });
       }
     } else {
@@ -94,19 +95,12 @@ async function testUpload() {
     
     const versionedDesign = {
       ...testDesign,
-      metadata: {
-        ...testDesign.metadata,
-        version: "2.0",
-        updated: new Date().toISOString()
-      },
-      geometry: {
-        ...testDesign.geometry,
-        parameters: {
-          ...testDesign.geometry.parameters,
-          width: 150, // Changed parameter
-          notes: "Updated version for versioning test"
-        }
-      }
+      "selected_pattern": testDesign['selected_pattern'] + 1, // Changed pattern
+      "selected_material": testDesign['selected_material'] + 1, // Changed material
+      panels: testDesign.panels.map(panel => ({
+        ...panel,
+        material: panel.material + 1 // Change panel materials
+      }))
     };
 
     const versionUploadResponse = await fetch(`${BASE_URL}/api/data/upload`, {
@@ -131,7 +125,8 @@ async function testUpload() {
         console.log('✅ Version history retrieved:');
         console.log(`   Total versions: ${versionsData.versions.length}`);
         versionsData.versions.forEach((version, index) => {
-          console.log(`     Version ${index}: ${version.id} (${version.uploadedAt})`);
+          console.log(`     Version ${index}: ${version._id} (${version.uploadedAt})`);
+          console.log(`       Pattern: ${version['selected_pattern']}, Material: ${version['selected_material']}`);
         });
       } else {
         console.log('⚠️ Could not retrieve version history');

@@ -19,8 +19,7 @@ const testDesigns = [
 //print test designs to console
 console.log('📄 Test Designs Loaded:');
 testDesigns.forEach((design, index) => {
-  const designId = design.data['design-id'] || `auto-generated-${index + 1}`;
-  console.log(`   ${index + 1}. ${design.name}: "${design.data.name}" (ID: ${designId})`);
+  console.log(`   ${index + 1}. ${design.name}: "${design.data.name}" (Author: ${design.data.author})`);
 });
 
 async function testUpload() {
@@ -39,8 +38,7 @@ async function testUpload() {
     for (let i = 0; i < testDesigns.length; i++) {
       const design = testDesigns[i];
       console.log(`\n📤 Uploading ${design.name}: "${design.data.name}"`);
-      const designId = design.data['design-id'] || `auto-generated-${Date.now()}-${i}`;
-      console.log(`   Design ID: ${designId}`);
+      console.log(`   Author: ${design.data.author}`);
       console.log(`   Dimensions: ${design.data['design-width-inches']}" × ${design.data['design-height-inches']}"`);
       console.log(`   Pattern: ${design.data['selected_pattern']}`);
       console.log(`   Panels: ${design.data.panels.length}`);
@@ -87,7 +85,6 @@ async function testUpload() {
       
       // Check for each uploaded design
       testDesigns.forEach((design, index) => {
-        const designId = design.data['design-id'] || design.data.name;
         const foundInList = listData.find(item => item.name === design.data.name);
         if (foundInList) {
           console.log(`   ✅ ${design.name} found in database`);
@@ -101,8 +98,7 @@ async function testUpload() {
       
       console.log('\n📋 Recent designs in database:');
       listData.slice(-10).forEach((item, index) => {
-        const displayId = item['design-id'] || item._id || 'no-id';
-        console.log(`     ${index + 1}. "${item.name}" (${displayId})`);
+        console.log(`     ${index + 1}. "${item.name}" (${item._id})`);
       });
     } else {
       console.log('❌ Could not fetch list to verify uploads');

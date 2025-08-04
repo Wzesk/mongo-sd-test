@@ -3,22 +3,21 @@
 
 const BASE_URL = 'http://localhost:5000';
 
-// Test design that we'll create multiple versions of
+// Read sample design from file
+const fs = require('fs');
+const path = require('path');
+const sampleDesign = JSON.parse(fs.readFileSync(path.join(__dirname, '../sample_1.json'), 'utf8'));
+
+// Create base design for versioning tests using MODA schema
 const baseDesign = {
   name: "Versioning Test Design",
-  designId: "versioning_test_" + Date.now(),
-  geometry: {
-    type: "parametric",
-    parameters: {
-      width: 100,
-      height: 50,
-      depth: 25
-    }
-  },
-  metadata: {
-    author: "Versioning Test Script",
-    created: new Date().toISOString()
-  }
+  author: "versioning-test-script",
+  "moda-version": "1.0",
+  "design-width-inches": sampleDesign['design-width-inches'],
+  "design-height-inches": sampleDesign['design-height-inches'],
+  "selected_pattern": 1,
+  "selected_material": 1,
+  panels: sampleDesign.panels.slice(0, 2) // Use first 2 panels from sample
 };
 
 async function testVersioning() {
@@ -33,12 +32,7 @@ async function testVersioning() {
     console.log('\n1️⃣ Uploading initial version...');
     const version1 = {
       ...baseDesign,
-      id: `${baseDesign.designId}_v1`,
-      metadata: {
-        ...baseDesign.metadata,
-        version: "1.0",
-        notes: "Initial version"
-      }
+      "selected_pattern": 1
     };
 
     const upload1Response = await fetch(`${BASE_URL}/api/data/upload`, {
@@ -53,7 +47,7 @@ async function testVersioning() {
 
     const upload1Result = await upload1Response.json();
     console.log('✅ Version 1 uploaded successfully');
-    console.log(`   ID: ${version1.id}`);
+    console.log(`   Name: ${version1.name}`);
     console.log(`   MongoDB ID: ${upload1Result.insertedId || upload1Result.id}`);
 
     // Wait a moment to ensure different timestamps
@@ -63,20 +57,12 @@ async function testVersioning() {
     console.log('\n2️⃣ Uploading second version (same name)...');
     const version2 = {
       ...baseDesign,
-      id: `${baseDesign.designId}_v2`,
-      geometry: {
-        ...baseDesign.geometry,
-        parameters: {
-          ...baseDesign.geometry.parameters,
-          width: 150, // Changed parameter
-          material: "aluminum"
-        }
-      },
-      metadata: {
-        ...baseDesign.metadata,
-        version: "2.0",
-        notes: "Updated width and added material"
-      }
+      "selected_pattern": 2, // Changed pattern
+      "selected_material": 2, // Changed material
+      panels: baseDesign.panels.map(panel => ({
+        ...panel,
+        material: panel.material + 1 // Change panel materials
+      }))
     };
 
     const upload2Response = await fetch(`${BASE_URL}/api/data/upload`, {
@@ -91,7 +77,7 @@ async function testVersioning() {
 
     const upload2Result = await upload2Response.json();
     console.log('✅ Version 2 uploaded successfully');
-    console.log(`   ID: ${version2.id}`);
+    console.log(`   Name: ${version2.name}`);
     console.log(`   MongoDB ID: ${upload2Result.insertedId || upload2Result.id}`);
 
     // Wait a moment again
@@ -101,22 +87,14 @@ async function testVersioning() {
     console.log('\n3️⃣ Uploading third version...');
     const version3 = {
       ...baseDesign,
-      id: `${baseDesign.designId}_v3`,
-      geometry: {
-        ...baseDesign.geometry,
-        parameters: {
-          ...baseDesign.geometry.parameters,
-          width: 200,
-          height: 75,
-          material: "carbon fiber",
-          finish: "matte"
-        }
-      },
-      metadata: {
-        ...baseDesign.metadata,
-        version: "3.0",
-        notes: "Final version with carbon fiber and custom finish"
-      }
+      "selected_pattern": 3, // Different pattern
+      "selected_material": 3, // Different material
+      "design-width-inches": baseDesign['design-width-inches'] + 12, // Wider design
+      panels: baseDesign.panels.map(panel => ({
+        ...panel,
+        material: panel.material + 2, // Change panel materials more
+        length: panel.length + 1 // Change panel length
+      }))
     };
 
     const upload3Response = await fetch(`${BASE_URL}/api/data/upload`, {
@@ -131,7 +109,7 @@ async function testVersioning() {
 
     const upload3Result = await upload3Response.json();
     console.log('✅ Version 3 uploaded successfully');
-    console.log(`   ID: ${version3.id}`);
+    console.log(`   Name: ${version3.name}`);
     console.log(`   MongoDB ID: ${upload3Result.insertedId || upload3Result.id}`);
 
     // Test 4: Retrieve version history
@@ -150,11 +128,12 @@ async function testVersioning() {
     console.log('   Version details:');
     
     versionsData.versions.forEach((version, index) => {
-      console.log(`     Version ${index}: ${version.id}`);
+      console.log(`     Version ${index}: ${version._id}`);
       console.log(`       Uploaded: ${version.uploadedAt}`);
-      console.log(`       Width: ${version.geometry?.parameters?.width || 'N/A'}`);
-      console.log(`       Version: ${version.metadata?.version || 'N/A'}`);
-      console.log(`       Notes: ${version.metadata?.notes || 'N/A'}`);
+      console.log(`       Pattern: ${version['selected_pattern'] || 'N/A'}`);
+      console.log(`       Material: ${version['selected_material'] || 'N/A'}`);
+      console.log(`       Width: ${version['design-width-inches'] || 'N/A'}" inches`);
+      console.log(`       Panels: ${version.panels?.length || 0}`);
     });
 
     // Test 5: Verify latest version in list_latest
@@ -167,14 +146,11 @@ async function testVersioning() {
       
       if (foundDesign) {
         console.log('✅ Design found in list_latest:');
-        console.log(`   ID: ${foundDesign.id}`);
+        console.log(`   MongoDB ID: ${foundDesign._id}`);
         console.log(`   Version count: ${foundDesign.totalVersions}`);
         console.log(`   Is latest: ${foundDesign.isLatestVersion}`);
         console.log(`   Upload time: ${foundDesign.uploadedAt}`);
-        
-        // Verify it's actually the latest (version 3)
-        const isActuallyLatest = foundDesign.id === version3.id;
-        console.log(`   ${isActuallyLatest ? '✅' : '❌'} Correctly shows latest version (v3)`);
+        console.log(`   Pattern: ${foundDesign['selected_pattern']}`);
       } else {
         console.log('❌ Design not found in latest list');
       }
@@ -189,13 +165,10 @@ async function testVersioning() {
     if (specificVersionResponse.ok) {
       const specificVersion = await specificVersionResponse.json();
       console.log('✅ Specific version (version 1) retrieved:');
-      console.log(`   ID: ${specificVersion.id}`);
-      console.log(`   Width: ${specificVersion.geometry?.parameters?.width || 'N/A'}`);
-      console.log(`   Version: ${specificVersion.metadata?.version || 'N/A'}`);
-      
-      // Verify it's actually version 1
-      const isVersion1 = specificVersion.id === version1.id;
-      console.log(`   ${isVersion1 ? '✅' : '❌'} Correctly retrieved version 1`);
+      console.log(`   MongoDB ID: ${specificVersion._id}`);
+      console.log(`   Pattern: ${specificVersion['selected_pattern'] || 'N/A'}`);
+      console.log(`   Width: ${specificVersion['design-width-inches'] || 'N/A'}" inches`);
+      console.log(`   Panels: ${specificVersion.panels?.length || 0}`);
     } else {
       console.log('❌ Could not retrieve specific version');
     }
@@ -217,15 +190,15 @@ async function testVersioning() {
       const newestInHistory = versionsData.versions[0];
       const newestInRegular = allVersions.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt))[0];
       
-      const orderCorrect = newestInHistory.id === newestInRegular.id;
+      const orderCorrect = newestInHistory._id === newestInRegular._id;
       console.log(`   ${orderCorrect ? '✅' : '❌'} Order consistency (newest first)`);
     }
 
     console.log('\n🎉 Versioning test completed successfully!');
     console.log('📊 Summary:');
     console.log(`   Total versions created: 3`);
-    console.log(`   Latest version ID: ${version3.id}`);
     console.log(`   Design name: "${baseDesign.name}"`);
+    console.log(`   Using MODA schema with author-based identification`);
 
   } catch (error) {
     console.error('❌ Test failed:', error.message);

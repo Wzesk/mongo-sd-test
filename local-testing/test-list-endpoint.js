@@ -19,7 +19,7 @@ async function testEndpoints() {
     const listData = await listResponse.json();
     console.log(`✅ Found ${listData.length} items:`);
     listData.forEach((item, index) => {
-      console.log(`   ${index + 1}. ID: ${item.id}, Name: "${item.name}"`);
+      console.log(`   ${index + 1}. MongoDB ID: ${item._id}, Name: "${item.name}", Author: "${item.author}"`);
     });
 
     // Test 2: Search endpoint without query (should return all)
@@ -34,7 +34,7 @@ async function testEndpoints() {
     console.log(`✅ Search results (query: "${searchAllData.query}"):`);
     console.log(`   Count: ${searchAllData.count}`);
     searchAllData.results.forEach((item, index) => {
-      console.log(`   ${index + 1}. ID: ${item.id}, Name: "${item.name}"`);
+      console.log(`   ${index + 1}. MongoDB ID: ${item._id}, Name: "${item.name}", Author: "${item.author}"`);
     });
 
     // Test 3: Search endpoint with query
@@ -49,7 +49,7 @@ async function testEndpoints() {
     console.log(`✅ Search results (query: "${searchQueryData.query}"):`);
     console.log(`   Count: ${searchQueryData.count}`);
     searchQueryData.results.forEach((item, index) => {
-      console.log(`   ${index + 1}. ID: ${item.id}, Name: "${item.name}"`);
+      console.log(`   ${index + 1}. MongoDB ID: ${item._id}, Name: "${item.name}", Author: "${item.author}"`);
     });
 
     // Test 4: Health check
