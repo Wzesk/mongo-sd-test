@@ -128,12 +128,10 @@ async function testVersioning() {
     console.log('   Version details:');
     
     versionsData.versions.forEach((version, index) => {
-      console.log(`     Version ${index}: ${version._id}`);
+      console.log(`     Version ${index}: ${version.id}`);
       console.log(`       Uploaded: ${version.uploadedAt}`);
-      console.log(`       Pattern: ${version['selected_pattern'] || 'N/A'}`);
-      console.log(`       Material: ${version['selected_material'] || 'N/A'}`);
-      console.log(`       Width: ${version['design-width-inches'] || 'N/A'}" inches`);
-      console.log(`       Panels: ${version.panels?.length || 0}`);
+      console.log(`       Version Number: ${version.versionNumber}`);
+      console.log(`       Is Current: ${version.isCurrent}`);
     });
 
     // Test 5: Verify latest version in list_latest
@@ -146,11 +144,10 @@ async function testVersioning() {
       
       if (foundDesign) {
         console.log('✅ Design found in list_latest:');
-        console.log(`   MongoDB ID: ${foundDesign._id}`);
+        console.log(`   MongoDB ID: ${foundDesign.id}`);
         console.log(`   Version count: ${foundDesign.totalVersions}`);
         console.log(`   Is latest: ${foundDesign.isLatestVersion}`);
         console.log(`   Upload time: ${foundDesign.uploadedAt}`);
-        console.log(`   Pattern: ${foundDesign['selected_pattern']}`);
       } else {
         console.log('❌ Design not found in latest list');
       }
@@ -165,10 +162,10 @@ async function testVersioning() {
     if (specificVersionResponse.ok) {
       const specificVersion = await specificVersionResponse.json();
       console.log('✅ Specific version (version 1) retrieved:');
-      console.log(`   MongoDB ID: ${specificVersion._id}`);
-      console.log(`   Pattern: ${specificVersion['selected_pattern'] || 'N/A'}`);
-      console.log(`   Width: ${specificVersion['design-width-inches'] || 'N/A'}" inches`);
-      console.log(`   Panels: ${specificVersion.panels?.length || 0}`);
+      console.log(`   MongoDB ID: ${specificVersion.id}`);
+      console.log(`   Version Number: ${specificVersion.versionNumber}`);
+      console.log(`   Is Current: ${specificVersion.isCurrent}`);
+      console.log(`   Upload time: ${specificVersion.uploadedAt}`);
     } else {
       console.log('❌ Could not retrieve specific version');
     }
@@ -190,7 +187,7 @@ async function testVersioning() {
       const newestInHistory = versionsData.versions[0];
       const newestInRegular = allVersions.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt))[0];
       
-      const orderCorrect = newestInHistory._id === newestInRegular._id;
+      const orderCorrect = newestInHistory.id === newestInRegular.id;
       console.log(`   ${orderCorrect ? '✅' : '❌'} Order consistency (newest first)`);
     }
 

@@ -36,7 +36,7 @@ async function testEndpoints() {
     const listData = await listResponse.json();
     console.log(`✅ Found ${listData.length} items:`);
     listData.slice(0, 10).forEach((item, index) => {
-      console.log(`   ${index + 1}. MongoDB ID: ${item._id}, Name: "${item.name}", Author: "${item.author}"`);
+      console.log(`   ${index + 1}. ID: ${item.id}, Name: "${item.name}"`);
     });
     if (listData.length > 10) {
       console.log(`   ... and ${listData.length - 10} more items`);
@@ -54,7 +54,7 @@ async function testEndpoints() {
     console.log(`✅ Search results (query: "${searchAllData.query}"):`);
     console.log(`   Count: ${searchAllData.count}`);
     searchAllData.results.slice(0, 5).forEach((item, index) => {
-      console.log(`   ${index + 1}. MongoDB ID: ${item._id}, Name: "${item.name}", Author: "${item.author}"`);
+      console.log(`   ${index + 1}. ID: ${item.id}, Name: "${item.name}"`);
     });
     if (searchAllData.results.length > 5) {
       console.log(`   ... and ${searchAllData.results.length - 5} more results`);
@@ -72,7 +72,7 @@ async function testEndpoints() {
     console.log(`✅ Search results (query: "${searchQueryData.query}"):`);
     console.log(`   Count: ${searchQueryData.count}`);
     searchQueryData.results.forEach((item, index) => {
-      console.log(`   ${index + 1}. MongoDB ID: ${item._id}, Name: "${item.name}", Author: "${item.author}"`);
+      console.log(`   ${index + 1}. ID: ${item.id}, Name: "${item.name}"`);
     });
 
     console.log('\n🎉 All deployed endpoint tests completed successfully!');

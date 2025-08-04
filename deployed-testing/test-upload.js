@@ -72,18 +72,18 @@ async function testUpload() {
     
     if (listResponse.ok) {
       const listData = await listResponse.json();
-      const foundInList = listData.find(item => item._id === insertedId);
+      const foundInList = listData.find(item => item.id === insertedId);
       
       if (foundInList) {
         console.log('✅ Design found in list:');
         console.log(`   Position in list: ${listData.indexOf(foundInList) + 1} of ${listData.length}`);
-        console.log(`   Upload timestamp: ${foundInList.uploadedAt || 'N/A'}`);
+        console.log(`   Name: ${foundInList.name}`);
       } else {
         console.log('❌ Design not found in list');
         console.log(`   Total items in list: ${listData.length}`);
         console.log('   Recent items:');
         listData.slice(0, 5).forEach((item, index) => {
-          console.log(`     ${index + 1}. ${item._id} - ${item.name}`);
+          console.log(`     ${index + 1}. ${item.id} - ${item.name}`);
         });
       }
     } else {
@@ -125,8 +125,8 @@ async function testUpload() {
         console.log('✅ Version history retrieved:');
         console.log(`   Total versions: ${versionsData.versions.length}`);
         versionsData.versions.forEach((version, index) => {
-          console.log(`     Version ${index}: ${version._id} (${version.uploadedAt})`);
-          console.log(`       Pattern: ${version['selected_pattern']}, Material: ${version['selected_material']}`);
+          console.log(`     Version ${index}: ${version.id} (${version.uploadedAt})`);
+          console.log(`       Version Number: ${version.versionNumber}, Current: ${version.isCurrent}`);
         });
       } else {
         console.log('⚠️ Could not retrieve version history');
