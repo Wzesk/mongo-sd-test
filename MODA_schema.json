@@ -81,7 +81,8 @@
     }
   },
   "required": [
-    "design-id",
+    "name",
+    "author",
     "moda-version",
     "panels"
   ]

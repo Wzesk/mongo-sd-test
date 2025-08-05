@@ -40,7 +40,6 @@ async function testListDesigns() {
     console.log(`✅ Design list found ${latestListData.length} unique designs:`);
     latestListData.forEach((item, index) => {
       console.log(`   ${index + 1}. ID: ${item.id}, Name: "${item.name}"`);
-      console.log(`      Design ID: ${item.designId}`);
       console.log(`      Upload Timestamp: ${item.uploadedAt || 'N/A'}`);
       console.log(`      Is Latest: ${item.isLatestVersion}`);
       console.log(`      Total Versions: ${item.totalVersions}`);
