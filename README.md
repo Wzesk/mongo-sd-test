@@ -19,12 +19,14 @@ mongo-sd-test/
 │   ├── test-list-endpoint.js    # Basic API endpoint tests
 │   ├── test-upload.js           # Multi-file upload with versioning
 │   ├── test-versioning.js       # Version management with MODA schema
-│   └── test-list-designs.js     # Deduplication and latest filtering
+│   ├── test-list-designs.js     # Deduplication and latest filtering
+│   └── test-download-sd-pdf.js  # ShapeDiver PDF generation integration
 └── deployed-testing/       # Tests for production server
     ├── test-list-endpoint.js    # Health check, list, search endpoints
     ├── test-upload.js           # Upload sample_1.json with versioning
     ├── test-versioning.js       # Create 3 versions using sample data
-    └── test-list-designs.js     # Verify deduplication works correctly
+    ├── test-list-designs.js     # Verify deduplication works correctly
+    └── test-download-sd-pdf.js  # ShapeDiver PDF generation integration
 ```
 
 ## Sample Data Files
@@ -71,6 +73,7 @@ node test-list-endpoint.js    # Basic API functionality
 node test-upload.js           # Upload all sample files
 node test-versioning.js       # Create versions using sample_1.json
 node test-list-designs.js     # Test deduplication
+node test-download-sd-pdf.js  # Test ShapeDiver PDF generation
 ```
 
 ### Production Testing  
@@ -82,6 +85,7 @@ node test-list-endpoint.js    # Health check and basic endpoints
 node test-upload.js           # Upload and version sample_1.json
 node test-versioning.js       # Create 3 versions with MODA schema
 node test-list-designs.js     # Verify latest version filtering
+node test-download-sd-pdf.js  # Test ShapeDiver PDF generation
 ```
 
 ## Test Features
@@ -105,12 +109,21 @@ node test-list-designs.js     # Verify latest version filtering
 - ✅ Search with query parameters
 - ✅ Retrieve specific designs by ID
 - ✅ Version history and specific version retrieval
+- ✅ ShapeDiver PDF generation integration
 
 ### Data Integrity
 - ✅ Deduplication works correctly (`list_latest` endpoint)
 - ✅ Version counts match between endpoints
 - ✅ Upload responses include proper MongoDB IDs
 - ✅ Error handling for invalid requests
+
+### ShapeDiver Integration
+- ✅ Parameter validation (designId and ticket required)
+- ✅ Real ShapeDiver export backend ticket processing
+- ✅ Design data accessibility via API endpoints
+- ✅ MODA schema validation for ShapeDiver consumption
+- ✅ PDF generation and export result handling
+- ✅ Error handling for network and processing issues
 
 ## Test Output Examples
 
@@ -137,6 +150,24 @@ The tests work with real production data:
 - **Unique designs**: 2 distinct names
 - **"Sample Design 2"**: 6+ versions (author: user-2)
 - **"Versioning Test Design"**: 6+ versions (author: versioning-test-script)
+
+### ShapeDiver Test Details
+```
+🧪 Testing ShapeDiver PDF Download Endpoint
+✅ Parameter validation working correctly
+✅ Real ShapeDiver ticket accepted by endpoint  
+✅ Design data accessible for ShapeDiver integration
+🎉 PDF generation completed successfully!
+   Session ID: af09b8d6-db9a-4f13-b334-64b9a6ae3177
+   PDF Export Name: download-pdf
+   ShapeDiver Version: 2.21.1
+```
+
+**Test Configuration**:
+- Uses production design ID: `6890bea78fd7fefbbc259426` (Sample Design 2)
+- Real ShapeDiver export backend ticket for authentication
+- EU ShapeDiver server: `https://sdr8euc1.eu-central-1.shapediver.com`
+- Tests both success and error conditions
 
 ## Requirements
 
