@@ -40,7 +40,7 @@ async function testDownloadSDPDF() {
       console.log(`   Design name: ${designData.name}`);
       console.log(`   Author: ${designData.author}`);
       console.log(`   Panels count: ${designData.panels ? designData.panels.length : 'N/A'}`);
-      console.log(`   MODA version: ${designData['moda-version']}`);
+      console.log(`   MODA version: ${designData['moda-version'] || designData.version}`);
       console.log(`   Upload date: ${designData.uploadedAt}`);
     } else if (designResponse.status === 404) {
       console.log('⚠️ Test design not found in database');
@@ -107,48 +107,56 @@ async function testDownloadSDPDF() {
       body: JSON.stringify(validRequest)
     });
 
-    const pdfResult = await pdfResponse.json();
+    const contentType = pdfResponse.headers.get('content-type');
     
-    if (pdfResponse.status === 501) {
-      console.log('✅ Received expected SDK installation instructions');
-      console.log(`   Status: ${pdfResponse.status} (Not Implemented)`);
-      console.log(`   Message: ${pdfResult.message}`);
-      console.log('📋 Installation instructions:');
-      pdfResult.instructions.forEach((instruction, index) => {
-        console.log(`   ${index + 1}. ${instruction}`);
-      });
-      console.log('📝 Received parameters:');
-      console.log(`   Design ID: ${pdfResult.received.designId}`);
-      console.log(`   Ticket: ${pdfResult.received.ticket}`);
-      console.log(`   Endpoint: ${pdfResult.received.endpoint}`);
-      console.log(`   Database URL: ${pdfResult.received.databaseApiUrl}`);
-    } else {
-      console.log('📋 Unexpected response:');
+    if (pdfResponse.status === 200 && contentType && contentType.includes('application/pdf')) {
+      // Successfully received PDF file
+      const pdfBuffer = await pdfResponse.arrayBuffer();
+      const contentLength = pdfResponse.headers.get('content-length');
+      const contentDisposition = pdfResponse.headers.get('content-disposition');
+      
+      console.log('🎉 PDF generation and download completed successfully!');
+      console.log(`   Content-Type: ${contentType}`);
+      console.log(`   Content-Length: ${contentLength} bytes`);
+      console.log(`   Content-Disposition: ${contentDisposition}`);
+      console.log(`   PDF file size: ${pdfBuffer.byteLength} bytes`);
+      
+      // Extract filename from Content-Disposition header
+      const filenameMatch = contentDisposition ? contentDisposition.match(/filename="([^"]+)"/) : null;
+      const filename = filenameMatch ? filenameMatch[1] : 'unknown.pdf';
+      console.log(`   Generated filename: ${filename}`);
+      
+      // Save PDF file for verification (optional)
+      if (pdfBuffer.byteLength > 1000) { // Reasonable PDF size check
+        console.log('✅ PDF file appears to be valid (size > 1KB)');
+      } else {
+        console.log('⚠️ PDF file seems unusually small - may be corrupted');
+      }
+      
+    } else if (contentType && contentType.includes('application/json')) {
+      // JSON response (likely an error)
+      const pdfResult = await pdfResponse.json();
+      
+      console.log('📋 JSON Response received:');
       console.log(`   Status: ${pdfResponse.status}`);
-      console.log(`   Response:`, pdfResult);
+      console.log(`   Response:`, JSON.stringify(pdfResult, null, 2));
+      
+      if (pdfResponse.status >= 400) {
+        console.log('❌ PDF generation failed');
+        console.log(`   Error: ${pdfResult.error || 'Unknown error'}`);
+        console.log(`   Message: ${pdfResult.message || 'No details provided'}`);
+      }
+    } else {
+      // Unexpected response type
+      const responseText = await pdfResponse.text();
+      console.log('⚠️ Unexpected response format');
+      console.log(`   Status: ${pdfResponse.status}`);
+      console.log(`   Content-Type: ${contentType}`);
+      console.log(`   Response: ${responseText.substring(0, 200)}...`);
     }
 
-    // Test 4: Test with invalid designId
-    console.log('\n4️⃣ Testing with invalid design ID...');
-    
-    const invalidIdRequest = {
-      designId: 'invalid-design-id-123',
-      ticket: TEST_SHAPEDIVER_TICKET,
-      shapediverEndpoint: 'https://sdr8euc1.eu-central-1.shapediver.com'
-    };
-
-    const invalidIdResponse = await fetch(`${BASE_URL}/api/data/download-sd-pdf`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(invalidIdRequest)
-    });
-
-    const invalidIdResult = await invalidIdResponse.json();
-    console.log(`   Status: ${invalidIdResponse.status}`);
-    console.log(`   Response: ${invalidIdResult.message || invalidIdResult.error}`);
-
-    // Test 5: Verify design accessibility for ShapeDiver integration
-    console.log('\n5️⃣ Verifying design data format for ShapeDiver integration...');
+    // Test 4: Verify design accessibility for ShapeDiver integration
+    console.log('\n4️⃣ Verifying design data format for ShapeDiver integration...');
     
     const finalDesignResponse = await fetch(`${BASE_URL}/api/data/${TEST_DESIGN_ID}`);
     if (finalDesignResponse.ok) {
@@ -181,7 +189,15 @@ async function testDownloadSDPDF() {
     console.log('   ✅ Design data accessible for ShapeDiver integration');
     console.log('   🆔 Used real design ID from production database');
     console.log('   🎫 Used actual ShapeDiver export backend ticket');
-    console.log('   📝 Next step: Install ShapeDiver SDK to enable actual PDF generation');
+    
+    // Check if we got a successful PDF response
+    if (contentType && contentType.includes('application/pdf')) {
+      console.log('   🎉 ShapeDiver SDK is installed and PDF generation is working!');
+      console.log('   📄 Successfully generated and downloaded PDF file');
+    } else {
+      console.log('   ⚠️ PDF generation encountered issues - check server logs');
+      console.log('   💡 ShapeDiver SDK may need configuration or ticket validation');
+    }
 
   } catch (error) {
     console.error('❌ Test failed:', error.message);

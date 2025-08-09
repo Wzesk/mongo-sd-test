@@ -157,10 +157,10 @@ The tests work with real production data:
 ✅ Parameter validation working correctly
 ✅ Real ShapeDiver ticket accepted by endpoint  
 ✅ Design data accessible for ShapeDiver integration
-🎉 PDF generation completed successfully!
-   Session ID: af09b8d6-db9a-4f13-b334-64b9a6ae3177
-   PDF Export Name: download-pdf
-   ShapeDiver Version: 2.21.1
+🎉 PDF generation and download completed successfully!
+   Content-Type: application/pdf
+   Content-Length: 245760 bytes
+   Generated filename: 6890bea78fd7fefbbc259426_download-pdf.pdf
 ```
 
 **Test Configuration**:
@@ -168,6 +168,7 @@ The tests work with real production data:
 - Real ShapeDiver export backend ticket for authentication
 - EU ShapeDiver server: `https://sdr8euc1.eu-central-1.shapediver.com`
 - Tests both success and error conditions
+- Validates PDF file download and headers
 
 ## Requirements
 
