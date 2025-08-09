@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShapeDiver PDF Download Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .hidden {
+            display: none;
+        }
+        .preset-btn {
+            background-color: #28a745;
+            font-size: 14px;
+            padding: 8px 15px;
+        }
+        .preset-btn:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 ShapeDiver PDF Download Test</h1>
+        <p>Test the deployed ShapeDiver PDF generation endpoint</p>
+        
+        <form id="pdfForm">
+            <div class="form-group">
+                <label for="serverUrl">Server URL:</label>
+                <input type="text" id="serverUrl" value="https://mongo-sd-server.onrender.com" readonly>
+            </div>
+            
+            <div class="form-group">
+                <label for="designId">Design ID:</label>
+                <input type="text" id="designId" value="6890bea78fd7fefbbc259426" placeholder="Enter design ID">
+                <button type="button" class="preset-btn" onclick="loadPresetData()">Load Test Data</button>
+            </div>
+            
+            <div class="form-group">
+                <label for="ticket">ShapeDiver Ticket:</label>
+                <input type="text" id="ticket" placeholder="Enter ShapeDiver export backend ticket">
+            </div>
+            
+            <div class="form-group">
+                <label for="endpoint">ShapeDiver Endpoint (optional):</label>
+                <input type="text" id="endpoint" value="https://sdr8euc1.eu-central-1.shapediver.com" placeholder="Leave blank for default">
+            </div>
+            
+            <button type="button" onclick="downloadPDF()">📄 Download PDF</button>
+            <button type="button" onclick="testConnection()">🔍 Test Connection</button>
+        </form>
+        
+        <div id="status" class="status hidden"></div>
+    </div>
+
+    <script>
+        function loadPresetData() {
+            document.getElementById('designId').value = '6890bea78fd7fefbbc259426';
+            document.getElementById('ticket').value = '2b8e5b51ab7475c7d76d8b52cecdbb877dbe876e04d2bc89229d7ed2e1ec4ce72fe77718e10235ed142eec60d711234f15a8e4c44a0b5f1f8e1236b5da88e64a9a2a49009160ce81c3242ac13531846230a00a8df5abe3cf1b563797c4ce311fafdae257fa9ee9df813893c685b208ce3015f42e854e9ac7-b8a0e844343acc7c6c9b623a49db53e7';
+            showStatus('✅ Test data loaded successfully', 'success');
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.classList.remove('hidden');
+        }
+
+        function hideStatus() {
+            document.getElementById('status').classList.add('hidden');
+        }
+
+        async function testConnection() {
+            hideStatus();
+            showStatus('🔍 Testing server connection...', 'info');
+            
+            const serverUrl = document.getElementById('serverUrl').value;
+            const designId = document.getElementById('designId').value;
+            
+            try {
+                const response = await fetch(`${serverUrl}/api/data/${designId}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showStatus(`✅ Connection successful! Found design: "${data.name}" by ${data.author}`, 'success');
+                } else {
+                    showStatus(`❌ Connection failed: HTTP ${response.status}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`❌ Connection error: ${error.message}`, 'error');
+            }
+        }
+
+        async function downloadPDF() {
+            hideStatus();
+            
+            const serverUrl = document.getElementById('serverUrl').value;
+            const designId = document.getElementById('designId').value;
+            const ticket = document.getElementById('ticket').value;
+            const endpoint = document.getElementById('endpoint').value;
+            
+            // Validate inputs
+            if (!designId) {
+                showStatus('❌ Please enter a Design ID', 'error');
+                return;
+            }
+            
+            if (!ticket) {
+                showStatus('❌ Please enter a ShapeDiver ticket', 'error');
+                return;
+            }
+            
+            showStatus('🔄 Generating PDF... This may take a few seconds', 'info');
+            
+            try {
+                const requestBody = {
+                    designId: designId,
+                    ticket: ticket
+                };
+                
+                if (endpoint) {
+                    requestBody.shapediverEndpoint = endpoint;
+                }
+                
+                const response = await fetch(`${serverUrl}/api/data/download-sd-pdf`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                if (response.ok) {
+                    // Check if it's a PDF response
+                    const contentType = response.headers.get('content-type');
+                    
+                    if (contentType && contentType.includes('application/pdf')) {
+                        // Get the PDF blob
+                        const pdfBlob = await response.blob();
+                        
+                        // Create download link
+                        const url = window.URL.createObjectURL(pdfBlob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `design_${designId}.pdf`;
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                        document.body.removeChild(a);
+                        
+                        showStatus(`✅ PDF downloaded successfully! File size: ${pdfBlob.size} bytes`, 'success');
+                    } else {
+                        // Not a PDF response, show the error
+                        const errorText = await response.text();
+                        showStatus(`❌ Unexpected response: ${errorText}`, 'error');
+                    }
+                } else {
+                    // Error response
+                    const errorData = await response.json();
+                    showStatus(`❌ PDF generation failed: ${errorData.message || errorData.error}`, 'error');
+                }
+                
+            } catch (error) {
+                showStatus(`❌ Request failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Load test data on page load
+        window.onload = function() {
+            loadPresetData();
+        };
+    </script>
+</body>
+</html>
