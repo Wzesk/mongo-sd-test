@@ -14,7 +14,7 @@ async function testDownloadSDPDF() {
   console.log('🧪 Testing ShapeDiver PDF Download Endpoint on Deployed Server');
   console.log('🌐 Testing server at:', BASE_URL);
   console.log(`🆔 Using test design ID: ${TEST_DESIGN_ID}`);
-  console.log(`🎫 Using ShapeDiver ticket: ${TEST_SHAPEDIVER_TICKET.substring(0, 50)}...`);
+  console.log(`🎫 Using server-side ShapeDiver ticket (configured on server)`);
   console.log('=' .repeat(60));
 
   try {
@@ -46,7 +46,6 @@ async function testDownloadSDPDF() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-    ticket: 'test-ticket',
     exportType: 'download',
     exportNameContains: 'pdf',
     contentType: 'application/pdf'
@@ -61,45 +60,25 @@ async function testDownloadSDPDF() {
       console.log('❌ Should have rejected request without designId');
     }
 
-    // Test without ticket
-  const missingTicketResponse = await fetch(`${BASE_URL}/api/data/download`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-    designId: TEST_DESIGN_ID,
-    exportType: 'download',
-    exportNameContains: 'pdf',
-    contentType: 'application/pdf'
-      })
-    });
-
-    if (missingTicketResponse.status === 400) {
-      const errorResult = await missingTicketResponse.json();
-      console.log('✅ Correctly rejected request without ticket');
-      console.log(`   Error: ${errorResult.message}`);
-    } else {
-      console.log('❌ Should have rejected request without ticket');
-    }
+  // Ticket is no longer required in the request body (server uses configured ticket)
 
     // Test 3: Test with valid parameters using real ShapeDiver ticket
     console.log('\n3️⃣ Testing PDF endpoint with real ShapeDiver ticket...');
     
     const validRequest = {
       designId: TEST_DESIGN_ID,
-      ticket: TEST_SHAPEDIVER_TICKET,
       shapediverEndpoint: 'https://sdr8euc1.eu-central-1.shapediver.com'
     };
 
     console.log('📤 Sending PDF generation request:');
     console.log(`   Design ID: ${validRequest.designId}`);
-    console.log(`   Ticket: ${validRequest.ticket.substring(0, 50)}...`);
     console.log(`   Endpoint: ${validRequest.shapediverEndpoint}`);
 
     const pdfResponse = await fetch(`${BASE_URL}/api/data/download`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        ...validRequest,
+  ...validRequest,
         exportType: 'download',
         exportNameContains: 'pdf',
         contentType: 'application/pdf'

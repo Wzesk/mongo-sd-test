@@ -118,8 +118,8 @@ node test-download-sd-pdf.js  # Test ShapeDiver export download (PDF)
 - ✅ Error handling for invalid requests
 
 ### ShapeDiver Integration
-- ✅ Parameter validation (designId and ticket required)
-- ✅ Real ShapeDiver export backend ticket processing
+- ✅ Parameter validation (designId required)
+- ✅ Server-side ShapeDiver export backend ticket configured
 - ✅ Design data accessibility via API endpoints
 - ✅ MODA schema validation for ShapeDiver consumption
 - ✅ PDF generation and export result handling
@@ -155,7 +155,7 @@ The tests work with real production data:
 ```
 🧪 Testing ShapeDiver PDF Download Endpoint
 ✅ Parameter validation working correctly
-✅ Real ShapeDiver ticket accepted by endpoint  
+✅ Server-side ticket used by endpoint  
 ✅ Design data accessible for ShapeDiver integration
 🎉 Export generated and downloaded successfully!
    Content-Type: application/pdf
@@ -165,7 +165,7 @@ Generated filename: 6890bea78fd7fefbbc259426_download-pdf.pdf
 
 **Test Configuration**:
 - Uses production design ID: `6890bea78fd7fefbbc259426` (Sample Design 2)
-- Real ShapeDiver export backend ticket for authentication
+- Server-configured ShapeDiver export backend ticket for authentication
 - EU ShapeDiver server: `https://sdr8euc1.eu-central-1.shapediver.com`
 - Tests both success and error conditions
 - Validates PDF file download and headers

@@ -107,8 +107,8 @@
             </div>
             
             <div class="form-group">
-                <label for="ticket">ShapeDiver Ticket:</label>
-                <input type="text" id="ticket" placeholder="Enter ShapeDiver export backend ticket">
+                <label>ShapeDiver Ticket:</label>
+                <input type="text" value="Using server-configured ticket" readonly>
             </div>
             
             <div class="form-group">
@@ -126,7 +126,6 @@
     <script>
         function loadPresetData() {
             document.getElementById('designId').value = '6890bea78fd7fefbbc259426';
-            document.getElementById('ticket').value = '2b8e5b51ab7475c7d76d8b52cecdbb877dbe876e04d2bc89229d7ed2e1ec4ce72fe77718e10235ed142eec60d711234f15a8e4c44a0b5f1f8e1236b5da88e64a9a2a49009160ce81c3242ac13531846230a00a8df5abe3cf1b563797c4ce311fafdae257fa9ee9df813893c685b208ce3015f42e854e9ac7-b8a0e844343acc7c6c9b623a49db53e7';
             showStatus('✅ Test data loaded successfully', 'success');
         }
 
@@ -167,7 +166,6 @@
             
             const serverUrl = document.getElementById('serverUrl').value;
             const designId = document.getElementById('designId').value;
-            const ticket = document.getElementById('ticket').value;
             const endpoint = document.getElementById('endpoint').value;
             
             // Validate inputs
@@ -176,17 +174,13 @@
                 return;
             }
             
-            if (!ticket) {
-                showStatus('❌ Please enter a ShapeDiver ticket', 'error');
-                return;
-            }
+            // Ticket no longer required in request body
             
             showStatus('🔄 Generating PDF... This may take a few seconds', 'info');
             
             try {
                 const requestBody = {
-                    designId: designId,
-                    ticket: ticket
+                    designId: designId
                 };
                 
                 if (endpoint) {
