@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShapeDiver PDF Download Test</title>
+    <title>ShapeDiver Download Test (PDF/ZIP/OBJ)</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -91,8 +91,8 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎯 ShapeDiver PDF Download Test</h1>
-        <p>Test the deployed ShapeDiver PDF generation endpoint</p>
+    <h1>🎯 ShapeDiver Download Test</h1>
+    <p>Test the deployed ShapeDiver export download endpoint for PDF, ZIP, and OBJ</p>
         
         <form id="pdfForm">
             <div class="form-group">
@@ -116,8 +116,13 @@
                 <input type="text" id="endpoint" value="https://sdr8euc1.eu-central-1.shapediver.com" placeholder="Leave blank for default">
             </div>
             
-            <button type="button" onclick="downloadPDF()">📄 Download PDF</button>
-            <button type="button" onclick="testConnection()">🔍 Test Connection</button>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <button type="button" onclick="downloadType('pdf')">📄 Download PDF</button>
+                <button type="button" onclick="downloadType('zip')">�️ Download ZIP</button>
+                <button type="button" onclick="downloadType('obj')">🧩 Download OBJ</button>
+                <button type="button" onclick="runAll()">🚀 Run All</button>
+                <button type="button" onclick="testConnection()">🔍 Test Connection</button>
+            </div>
         </form>
         
         <div id="status" class="status hidden"></div>
@@ -161,7 +166,7 @@
             }
         }
 
-        async function downloadPDF() {
+        async function downloadType(kind) {
             hideStatus();
             
             const serverUrl = document.getElementById('serverUrl').value;
@@ -175,8 +180,30 @@
             }
             
             // Ticket no longer required in request body
-            
-            showStatus('🔄 Generating PDF... This may take a few seconds', 'info');
+
+            const mapping = {
+                pdf: {
+                    exportNameContains: 'pdf',
+                    contentType: 'application/pdf',
+                    label: 'PDF',
+                    ext: '.pdf'
+                },
+                zip: {
+                    exportNameContains: 'zip',
+                    contentType: 'application/zip',
+                    label: 'ZIP',
+                    ext: '.zip'
+                },
+                obj: {
+                    exportNameContains: 'obj',
+                    // contentType for OBJ varies; omit to let server pick
+                    label: 'OBJ',
+                    ext: '.obj'
+                }
+            };
+
+            const cfg = mapping[kind] || mapping.pdf;
+            showStatus(`🔄 Generating ${cfg.label}... This may take a few seconds`, 'info');
             
             try {
                 const requestBody = {
@@ -195,44 +222,56 @@
                     body: JSON.stringify({
                         ...requestBody,
                         exportType: 'download',
-                        exportNameContains: 'pdf',
-                        contentType: 'application/pdf'
+                        exportNameContains: cfg.exportNameContains,
+                        ...(cfg.contentType ? { contentType: cfg.contentType } : {})
                     })
                 });
                 
                 if (response.ok) {
-                    // Check if it's a PDF response
+                    // Check content type
                     const contentType = response.headers.get('content-type');
-                    
-                    if (contentType && contentType.includes('application/pdf')) {
-                        // Get the PDF blob
-                        const pdfBlob = await response.blob();
-                        
-                        // Create download link
-                        const url = window.URL.createObjectURL(pdfBlob);
+                    const isExpected = (ct) => {
+                        if (!ct) return false;
+                        if (cfg.label === 'PDF') return ct.includes('application/pdf');
+                        if (cfg.label === 'ZIP') return ct.includes('application/zip') || ct.includes('application/octet-stream');
+                        if (cfg.label === 'OBJ') return ct.includes('model/obj') || ct.includes('text/plain') || ct.includes('application/octet-stream');
+                        return false;
+                    };
+
+                    if (isExpected(contentType)) {
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
                         const a = document.createElement('a');
                         a.href = url;
-                        a.download = `design_${designId}.pdf`;
+                        // Prefer server-provided filename
+                        const cd = response.headers.get('content-disposition');
+                        const m = cd && cd.match(/filename="([^"]+)"/);
+                        const fallback = `design_${designId}${cfg.ext}`;
+                        a.download = (m && m[1]) || fallback;
                         document.body.appendChild(a);
                         a.click();
                         window.URL.revokeObjectURL(url);
                         document.body.removeChild(a);
-                        
-                        showStatus(`✅ PDF downloaded successfully! File size: ${pdfBlob.size} bytes`, 'success');
+                        showStatus(`✅ ${cfg.label} downloaded! Size: ${blob.size} bytes (Content-Type: ${contentType})`, 'success');
                     } else {
-                        // Not a PDF response, show the error
                         const errorText = await response.text();
-                        showStatus(`❌ Unexpected response: ${errorText}`, 'error');
+                        showStatus(`❌ Unexpected response for ${cfg.label}: ${errorText}`, 'error');
                     }
                 } else {
                     // Error response
                     const errorData = await response.json();
-                    showStatus(`❌ PDF generation failed: ${errorData.message || errorData.error}`, 'error');
+                    showStatus(`❌ ${cfg.label} generation failed: ${errorData.message || errorData.error}`, 'error');
                 }
                 
             } catch (error) {
-                showStatus(`❌ Request failed: ${error.message}`, 'error');
+                showStatus(`❌ ${cfg.label} request failed: ${error.message}`, 'error');
             }
+        }
+
+        async function runAll() {
+            await downloadType('zip');
+            await downloadType('pdf');
+            await downloadType('obj');
         }
 
         // Load test data on page load
