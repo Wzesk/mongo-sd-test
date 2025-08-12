@@ -229,7 +229,7 @@
                         if (!ct) return false;
                         if (cfg.label === 'PDF') return ct.includes('application/pdf');
                         if (cfg.label === 'ZIP') return ct.includes('application/zip') || ct.includes('application/octet-stream');
-                        if (cfg.label === 'OBJ') return ct.includes('model/obj') || ct.includes('text/plain') || ct.includes('application/octet-stream');
+                        if (cfg.label === 'OBJ') return ct.includes('model/obj') || ct.includes('text/plain') || ct.includes('text/x-obj') || ct.includes('application/x-obj') || ct.includes('application/octet-stream');
                         return false;
                     };
 
