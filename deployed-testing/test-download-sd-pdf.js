@@ -42,11 +42,14 @@ async function testDownloadSDPDF() {
     console.log('\n2️⃣ Testing PDF endpoint with missing parameters...');
     
     // Test without designId
-    const missingDesignIdResponse = await fetch(`${BASE_URL}/api/data/download-sd-pdf`, {
+  const missingDesignIdResponse = await fetch(`${BASE_URL}/api/data/download`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        ticket: 'test-ticket'
+    ticket: 'test-ticket',
+    exportType: 'download',
+    exportNameContains: 'pdf',
+    contentType: 'application/pdf'
       })
     });
 
@@ -59,11 +62,14 @@ async function testDownloadSDPDF() {
     }
 
     // Test without ticket
-    const missingTicketResponse = await fetch(`${BASE_URL}/api/data/download-sd-pdf`, {
+  const missingTicketResponse = await fetch(`${BASE_URL}/api/data/download`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        designId: TEST_DESIGN_ID
+    designId: TEST_DESIGN_ID,
+    exportType: 'download',
+    exportNameContains: 'pdf',
+    contentType: 'application/pdf'
       })
     });
 
@@ -89,10 +95,15 @@ async function testDownloadSDPDF() {
     console.log(`   Ticket: ${validRequest.ticket.substring(0, 50)}...`);
     console.log(`   Endpoint: ${validRequest.shapediverEndpoint}`);
 
-    const pdfResponse = await fetch(`${BASE_URL}/api/data/download-sd-pdf`, {
+    const pdfResponse = await fetch(`${BASE_URL}/api/data/download`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(validRequest)
+      body: JSON.stringify({
+        ...validRequest,
+        exportType: 'download',
+        exportNameContains: 'pdf',
+        contentType: 'application/pdf'
+      })
     });
 
     const contentType = pdfResponse.headers.get('content-type');

@@ -20,13 +20,13 @@ mongo-sd-test/
 │   ├── test-upload.js           # Multi-file upload with versioning
 │   ├── test-versioning.js       # Version management with MODA schema
 │   ├── test-list-designs.js     # Deduplication and latest filtering
-│   └── test-download-sd-pdf.js  # ShapeDiver PDF generation integration
+│   └── test-download-sd-pdf.js  # ShapeDiver export download (PDF)
 └── deployed-testing/       # Tests for production server
     ├── test-list-endpoint.js    # Health check, list, search endpoints
     ├── test-upload.js           # Upload sample_1.json with versioning
     ├── test-versioning.js       # Create 3 versions using sample data
     ├── test-list-designs.js     # Verify deduplication works correctly
-    └── test-download-sd-pdf.js  # ShapeDiver PDF generation integration
+    └── test-download-sd-pdf.js  # ShapeDiver export download (PDF)
 ```
 
 ## Sample Data Files
@@ -73,7 +73,7 @@ node test-list-endpoint.js    # Basic API functionality
 node test-upload.js           # Upload all sample files
 node test-versioning.js       # Create versions using sample_1.json
 node test-list-designs.js     # Test deduplication
-node test-download-sd-pdf.js  # Test ShapeDiver PDF generation
+node test-download-sd-pdf.js  # Test ShapeDiver export download (PDF)
 ```
 
 ### Production Testing  
@@ -85,7 +85,7 @@ node test-list-endpoint.js    # Health check and basic endpoints
 node test-upload.js           # Upload and version sample_1.json
 node test-versioning.js       # Create 3 versions with MODA schema
 node test-list-designs.js     # Verify latest version filtering
-node test-download-sd-pdf.js  # Test ShapeDiver PDF generation
+node test-download-sd-pdf.js  # Test ShapeDiver export download (PDF)
 ```
 
 ## Test Features
@@ -151,16 +151,16 @@ The tests work with real production data:
 - **"Sample Design 2"**: 6+ versions (author: user-2)
 - **"Versioning Test Design"**: 6+ versions (author: versioning-test-script)
 
-### ShapeDiver Test Details
+### ShapeDiver Test Details (PDF)
 ```
 🧪 Testing ShapeDiver PDF Download Endpoint
 ✅ Parameter validation working correctly
 ✅ Real ShapeDiver ticket accepted by endpoint  
 ✅ Design data accessible for ShapeDiver integration
-🎉 PDF generation and download completed successfully!
+🎉 Export generated and downloaded successfully!
    Content-Type: application/pdf
    Content-Length: 245760 bytes
-   Generated filename: 6890bea78fd7fefbbc259426_download-pdf.pdf
+Generated filename: 6890bea78fd7fefbbc259426_download-pdf.pdf
 ```
 
 **Test Configuration**:

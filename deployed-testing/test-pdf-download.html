@@ -193,12 +193,17 @@
                     requestBody.shapediverEndpoint = endpoint;
                 }
                 
-                const response = await fetch(`${serverUrl}/api/data/download-sd-pdf`, {
+                const response = await fetch(`${serverUrl}/api/data/download`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(requestBody)
+                    body: JSON.stringify({
+                        ...requestBody,
+                        exportType: 'download',
+                        exportNameContains: 'pdf',
+                        contentType: 'application/pdf'
+                    })
                 });
                 
                 if (response.ok) {
