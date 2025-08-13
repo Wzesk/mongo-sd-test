@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<title>PDF Download Cache Test</title>
+	<style>
+		body { font-family: Arial, sans-serif; margin: 2rem; }
+		button { margin-right: .5rem; margin-top: .5rem; }
+		#log { white-space: pre-wrap; background:#111; color:#0f0; padding:1rem; border-radius:6px; max-height:50vh; overflow:auto; font-size:12px; }
+		.hit { color:#4caf50; }
+		.miss { color:#ff9800; }
+	</style>
+</head>
+<body>
+	<h1>PDF Download Cache Test</h1>
+	<div>
+		<label>Server URL <input id="server" size="60" value="https://mongo-sd-server.onrender.com"/></label><br/>
+		<label>Design ID <input id="design" size="40" value="6890bea78fd7fefbbc259426"/></label><br/>
+		<label><input type="checkbox" id="bypass"/> bypassCache</label>
+	</div>
+	<div>
+		<button onclick="downloadPdf()">Download PDF</button>
+		<button onclick="sequence()">Run Sequence (MISS→HIT→BYPASS→HIT)</button>
+		<button onclick="stats()">Get Stats (design)</button>
+		<button onclick="purgeDesign()">Purge Design Cache</button>
+	</div>
+	<h3>Log</h3>
+	<div id="log"></div>
+	<script>
+		function log(msg){ const el=document.getElementById('log'); el.textContent += msg+"\n"; el.scrollTop=el.scrollHeight; }
+		async function downloadPdf(){
+			const server=document.getElementById('server').value;
+			const design=document.getElementById('design').value;
+			const bypass=document.getElementById('bypass').checked;
+			log(`REQUEST pdf bypass=${bypass}`);
+			const r= await fetch(`${server}/api/data/download`, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({designId:design, exportType:'download', exportNameContains:'pdf', ...(bypass?{bypassCache:true}:{})})});
+			const cache=r.headers.get('x-cache');
+			const ct=r.headers.get('content-type');
+			if(r.ok && ct && ct.includes('application/pdf')){
+				const b= await r.arrayBuffer();
+				log(`✔ PDF ${b.byteLength} bytes cache=${cache}`);
+			} else {
+				let t= await r.text();
+				log(`✖ PDF fail status=${r.status} body=${t.substring(0,120)}`);
+			}
+		}
+		async function sequence(){
+			document.getElementById('bypass').checked=false; await downloadPdf();
+			await downloadPdf();
+			document.getElementById('bypass').checked=true; await downloadPdf();
+			document.getElementById('bypass').checked=false; await downloadPdf();
+		}
+		async function stats(){
+			const server=document.getElementById('server').value;
+			const design=document.getElementById('design').value;
+			const r= await fetch(`${server}/api/cache/exports/stats?designId=${design}`);
+			const j= await r.json();
+			log('STATS '+JSON.stringify(j));
+		}
+		async function purgeDesign(){
+			const server=document.getElementById('server').value;
+			const design=document.getElementById('design').value;
+			const r= await fetch(`${server}/api/cache/exports?designId=${design}`, {method:'DELETE'});
+			const j= await r.json();
+			log('PURGE '+JSON.stringify(j));
+		}
+	</script>
+</body>
+</html>
